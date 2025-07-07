@@ -1,0 +1,3 @@
+/home/igor/vjprogram/build/CMakeFiles/vj-app.dir
+/home/igor/vjprogram/build/CMakeFiles/edit_cache.dir
+/home/igor/vjprogram/build/CMakeFiles/rebuild_cache.dir
