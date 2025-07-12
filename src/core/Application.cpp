@@ -162,6 +162,9 @@ void Application::onMidiNote(int note, bool isNoteOn) {
         VideoClip* clip = findClipByNote(note, true);
         if (clip) {
             if (!clip->isPlaying()) {
+                // Stop any other currently playing clips first
+                stopAllPlayingClips();
+                
                 std::cout << "▶️  Starting: " << clip->getPath() << std::endl;
                 if (videoPlayer->startClip(clip)) {
                     clip->setPlaying(true);
@@ -171,9 +174,8 @@ void Application::onMidiNote(int note, bool isNoteOn) {
             }
         }
     } 
-    // Remove the "else" here - don't stop on note off for start notes
     
-    // Only handle stop notes explicitly
+    // Handle explicit stop notes
     VideoClip* stopClip = findClipByNote(note, false);
     if (stopClip && stopClip->isPlaying() && !isNoteOn) {
         std::cout << "⏹️  Stopping: " << stopClip->getPath() << std::endl;
@@ -221,5 +223,20 @@ bool Application::loadClipsFromCSV(const std::string& csvPath) {
     } catch (const std::exception& e) {
         std::cerr << "Error loading CSV: " << e.what() << std::endl;
         return false;
+    }
+}
+
+void Application::stopAllPlayingClips() {
+    bool stoppedAny = false;
+    for (auto& clip : videoClips) {
+        if (clip->isPlaying()) {
+            std::cout << "⏹️  Auto-stopping: " << clip->getPath() << std::endl;
+            videoPlayer->stopClip(clip.get());
+            clip->setPlaying(false);
+            stoppedAny = true;
+        }
+    }
+    if (stoppedAny) {
+        std::cout << "🔄 Cleared all clips for new playback" << std::endl;
     }
 }
