@@ -106,13 +106,11 @@ void MidiHandler::processMidiMessage(const std::vector<unsigned char>& message) 
         int velocity = message[2];
         
         if (velocity > 0) {
-            std::cout << "MIDI Note ON: " << note << " (velocity: " << velocity << ")" << std::endl;
             if (noteCallback) {
                 noteCallback(note, true);
             }
         } else {
-            // Note on with velocity 0 is actually note off
-            std::cout << "MIDI Note OFF: " << note << std::endl;
+            // Note on with velocity 0 = note off
             if (noteCallback) {
                 noteCallback(note, false);
             }
@@ -121,7 +119,6 @@ void MidiHandler::processMidiMessage(const std::vector<unsigned char>& message) 
     // Note Off: 0x80-0x8F
     else if ((status & 0xF0) == 0x80 && message.size() >= 3) {
         int note = message[1];
-        std::cout << "MIDI Note OFF: " << note << std::endl;
         if (noteCallback) {
             noteCallback(note, false);
         }
@@ -132,8 +129,8 @@ void MidiHandler::processMidiMessage(const std::vector<unsigned char>& message) 
         int value = message[2];
         
         // Common stop/panic controllers
-        if (controller == 123 || controller == 120) { // All Notes Off or All Sound Off
-            std::cout << "MIDI Stop/Panic received" << std::endl;
+        if (controller == 123 || controller == 120) {
+            std::cout << "🛑 MIDI Stop/Panic (CC" << controller << ")" << std::endl;
             if (stopCallback) {
                 stopCallback();
             }

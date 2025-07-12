@@ -84,54 +84,37 @@ bool Application::initialize(const AppConfig& appConfig) {
 void Application::run() {
     std::cout << "\n🎵 VJ Application Running" << std::endl;
     if (config.fullscreen) {
-        std::cout << "📺 Video output window is fullscreen" << std::endl;
-        std::cout << "⌨️  Press ESC in video window to quit" << std::endl;
+        std::cout << "📺 Fullscreen mode - Press ESC to quit" << std::endl;
     } else {
-        std::cout << "📺 Video output window is windowed mode" << std::endl;
-        std::cout << "⌨️  Press ESC in video window or F11 for fullscreen" << std::endl;
+        std::cout << "📺 Windowed mode - Press ESC to quit, F11 for fullscreen" << std::endl;
     }
-    std::cout << "🎹 Waiting for MIDI input..." << std::endl;
-    std::cout << std::endl;
+    std::cout << "🎹 Listening for MIDI input...\n" << std::endl;
     
-    // Display available clips
+    // Show available clips
     std::cout << "Available clips:" << std::endl;
     for (const auto& clip : videoClips) {
-        std::cout << "  • " << clip->getPath() 
-                  << " (Start: MIDI " << clip->getStartNote() 
-                  << ", Stop: MIDI " << clip->getStopNote() << ")" << std::endl;
+        std::cout << "  🎵 MIDI " << clip->getStartNote() 
+                  << " ▶️  " << clip->getPath() << std::endl;
+        std::cout << "  🎵 MIDI " << clip->getStopNote() 
+                  << " ⏹️  Stop" << std::endl;
     }
     std::cout << std::endl;
     
-    int frameCount = 0;
-    
-    // Main render loop
+    // Main render loop - remove frame counting debug
     while (running && displayManager->isWindowOpen()) {
-        // Get current composite frame from video player
         cv::Mat frame;
         videoPlayer->getCompositeFrame(frame);
-        
-        // Debug: Print every 60 frames (about once per second)
-        if (frameCount % 60 == 0) {
-            std::cout << "DEBUG: Main loop frame " << frameCount 
-                      << ", frame size: " << frame.cols << "x" << frame.rows << std::endl;
-        }
-        
-        // Display frame
         displayManager->showFrame(frame);
         
-        // Handle window events
         char key = displayManager->handleEvents();
         if (key == 27) { // ESC key
             std::cout << "ESC pressed, shutting down..." << std::endl;
             running = false;
             break;
-        } else if (key == 122) { // F11 key (toggle fullscreen)
+        } else if (key == 122) { // F11 key
             displayManager->toggleFullscreen();
         }
         
-        frameCount++;
-        
-        // Small delay to prevent 100% CPU usage (~60 FPS)
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
     }
     
@@ -157,20 +140,18 @@ void Application::shutdown() {
 }
 
 void Application::onMidiNote(int note, bool isNoteOn) {
+    // Show all MIDI input
+    std::cout << "🎹 MIDI " << note << (isNoteOn ? " ON" : " OFF") << std::endl;
+    
     if (isNoteOn) {
-        // Look for clip with this start note
         VideoClip* clip = findClipByNote(note, true);
         if (clip) {
             if (!clip->isPlaying()) {
-                // Stop any other currently playing clips first
                 stopAllPlayingClips();
-                
                 std::cout << "▶️  Starting: " << clip->getPath() << std::endl;
                 if (videoPlayer->startClip(clip)) {
                     clip->setPlaying(true);
                 }
-            } else {
-                std::cout << "🔄 Clip already playing: " << clip->getPath() << std::endl;
             }
         }
     } 
@@ -185,7 +166,7 @@ void Application::onMidiNote(int note, bool isNoteOn) {
 }
 
 void Application::onMidiStop() {
-    std::cout << "🛑 MIDI Stop - stopping all clips" << std::endl;
+    std::cout << "🛑 MIDI STOP - stopping all clips" << std::endl;
     videoPlayer->stopAllClips();
     for (auto& clip : videoClips) {
         clip->setPlaying(false);
@@ -227,16 +208,10 @@ bool Application::loadClipsFromCSV(const std::string& csvPath) {
 }
 
 void Application::stopAllPlayingClips() {
-    bool stoppedAny = false;
     for (auto& clip : videoClips) {
         if (clip->isPlaying()) {
-            std::cout << "⏹️  Auto-stopping: " << clip->getPath() << std::endl;
             videoPlayer->stopClip(clip.get());
             clip->setPlaying(false);
-            stoppedAny = true;
         }
-    }
-    if (stoppedAny) {
-        std::cout << "🔄 Cleared all clips for new playback" << std::endl;
     }
 }
