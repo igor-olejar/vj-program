@@ -16,9 +16,12 @@ bool DisplayManager::initialize(bool startFullscreen, int displayIndex) {
     
     detectDisplays();
     
-    // Create the window
-    cv::namedWindow(windowName, cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
+    // Create the window with minimal UI - no toolbar, just basic window controls
+    cv::namedWindow(windowName, cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_NORMAL);
     windowOpen = true;
+    
+    // Set window properties for clean appearance
+    cv::setWindowProperty(windowName, cv::WND_PROP_ASPECT_RATIO, cv::WINDOW_FREERATIO);
     
     // Determine which display to use
     if (displayIndex >= 0 && displayIndex < static_cast<int>(displays.size())) {
