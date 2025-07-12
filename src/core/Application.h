@@ -41,6 +41,7 @@ private:
     AppConfig config;
     bool running;
     bool loadClipsFromCSV(const std::string& csvPath);
+    void stopAllPlayingClips();
     
     VideoClip* findClipByNote(int note, bool isStart);
 };
