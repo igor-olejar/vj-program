@@ -217,7 +217,8 @@ void VideoPlayer::createCompositeFrame() {
         try {
             lastVideo->currentFrame.copyTo(compositeFrame);
             
-            // Debug: Add text overlay showing which clip is playing
+            // Remove or comment out the debug text overlay for clean video:
+            /*
             std::string clipName = lastVideo->clipPath;
             size_t lastSlash = clipName.find_last_of("/\\");
             if (lastSlash != std::string::npos) {
@@ -227,8 +228,9 @@ void VideoPlayer::createCompositeFrame() {
             cv::putText(compositeFrame, "Playing: " + clipName, 
                        cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 
                        1, cv::Scalar(0, 255, 0), 2);
+            */
                        
-            std::cout << "DEBUG: Successfully copied frame from " << clipName << std::endl;
+            std::cout << "DEBUG: Successfully copied frame from " << lastVideo->clipPath << std::endl;
         } catch (const cv::Exception& e) {
             std::cerr << "ERROR: Failed to copy frame: " << e.what() << std::endl;
         }
