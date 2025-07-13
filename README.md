@@ -7,11 +7,11 @@ I just wanted a very simple way to queue up video clips using MIDI messages sent
 **Installation**
 
 1. Download or clone the repository
-2. cd build
-3. rm -rf *
-4. cmake ..
-5. make
-6. cd ../
+2. `cd /path/to/folder/build`
+3. `rm -rf *`
+4. `cmake ..`
+5. `make`
+6. `cd ../`
 
 **How to use**
 
